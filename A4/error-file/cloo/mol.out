@@ -1,0 +1,451 @@
+
+    -----------------------------------------------------------------------
+          Psi4: An Open-Source Ab Initio Electronic Structure Package
+                               Psi4 1.9.1 release
+
+                         Git: Rev {} zzzzzzz 
+
+
+    D. G. A. Smith, L. A. Burns, A. C. Simmonett, R. M. Parrish,
+    M. C. Schieber, R. Galvelis, P. Kraus, H. Kruse, R. Di Remigio,
+    A. Alenaizan, A. M. James, S. Lehtola, J. P. Misiewicz, M. Scheurer,
+    R. A. Shaw, J. B. Schriber, Y. Xie, Z. L. Glick, D. A. Sirianni,
+    J. S. O'Brien, J. M. Waldrop, A. Kumar, E. G. Hohenstein,
+    B. P. Pritchard, B. R. Brooks, H. F. Schaefer III, A. Yu. Sokolov,
+    K. Patkowski, A. E. DePrince III, U. Bozkaya, R. A. King,
+    F. A. Evangelista, J. M. Turney, T. D. Crawford, C. D. Sherrill,
+    J. Chem. Phys. 152(18) 184108 (2020). https://doi.org/10.1063/5.0006002
+
+                            Additional Code Authors
+    E. T. Seidl, C. L. Janssen, E. F. Valeev, M. L. Leininger,
+    J. F. Gonthier, R. M. Richard, H. R. McAlexander, M. Saitow, X. Wang,
+    P. Verma, M. H. Lechner, A. Jiang, S. Behnle, A. G. Heide,
+    M. F. Herbst, and D. L. Poole
+
+             Previous Authors, Complete List of Code Contributors,
+                       and Citations for Specific Modules
+    https://github.com/psi4/psi4/blob/master/codemeta.json
+    https://github.com/psi4/psi4/graphs/contributors
+    http://psicode.org/psi4manual/master/introduction.html#citing-psifour
+
+    -----------------------------------------------------------------------
+
+
+    Psi4 started on: Friday, 11 April 2025 08:08PM
+
+    Process ID: 3504465
+    Host:       se018
+    PSIDATADIR: /arc/home/kevinzjc/.conda/envs/snakeenv/share/psi4
+    Memory:     500.0 MiB
+    Threads:    4
+    
+  ==> Input File <==
+
+--------------------------------------------------------------------------
+memory 15040 mb
+import numpy as np
+
+# Override Psi4's temporary directory when running on a Slurm cluster
+# This is necessary on our university's cluster to make use of disk-based methods for largeish molecules
+scratch_dir = os.environ.get('TMPDIR')
+if scratch_dir:
+    psi4_io.set_default_path(scratch_dir + '/')
+else:
+    #raise RuntimeError("Snakemake is not providing slurm environment variables!")
+    pass
+
+molecule {
+Cl 0.0000000000 0.0000000000 0.0000000000
+O 0.0000000000 0.0000000000 2.0323055400
+O 1.0916052500 0.0000000000 2.5499087976
+}
+
+# Default settings
+set basis def2-QZVPPD
+set reference UHF
+set scf_type DF
+set DFT_SPHERICAL_POINTS 590
+set DFT_RADIAL_POINTS 99
+set print 2
+
+# These settings may faciliate the convergence
+
+energy, wfn = energy('PBE0',return_wfn=True)
+
+# Psi4 annoyingly forces a .npy extension, which Snakemake doesn't know about
+# So, these lines are copied from the Psi4 source, but without the forced .npy
+wfn_data = wfn.to_file()
+# In fact, numpy as well will force the addition of the npy extension as well
+# So the only way is to literally open the file myself, that way nobody can mess with the name
+with open('../../ACCDB/Wavefunctions/PBE0/def2-QZVPPD_99x590/W4-17_cloo/mol.wf', 'wb') as f:
+    np.save(f, wfn_data, allow_pickle=True)
+--------------------------------------------------------------------------
+
+  Memory set to  14.007 GiB by Python driver.
+
+Scratch directory: /tmp/slurm/4901072/
+   => Libint2 <=
+
+    Primary   basis highest AM E, G, H:  6, 6, 3
+    Auxiliary basis highest AM E, G, H:  7, 7, 4
+    Onebody   basis highest AM E, G, H:  -, -, -
+    Solid Harmonics ordering:            Gaussian
+
+*** tstart() called on se018
+*** at Fri Apr 11 20:08:17 2025
+
+   => Loading Basis Set <=
+
+    Name: DEF2-QZVPPD
+    Role: ORBITAL
+    Keyword: BASIS
+    atoms 1   entry CL         line   868 file /arc/home/kevinzjc/.conda/envs/snakeenv/share/psi4/basis/def2-qzvppd.gbs 
+    atoms 2-3 entry O          line   305 file /arc/home/kevinzjc/.conda/envs/snakeenv/share/psi4/basis/def2-qzvppd.gbs 
+
+
+         ---------------------------------------------------------
+                                   SCF
+               by Justin Turney, Rob Parrish, Andy Simmonett
+                          and Daniel G. A. Smith
+                              UKS Reference
+                        4 Threads,  14343 MiB Core
+         ---------------------------------------------------------
+
+  ==> Geometry <==
+
+    Molecular point group: cs
+    Full point group: Cs
+
+    Geometry (in Angstrom), charge = 0, multiplicity = 2:
+
+       Center              X                  Y                   Z               Mass       
+    ------------   -----------------  -----------------  -----------------  -----------------
+         CL           0.260759803973    -1.094587363365     0.000000000000    34.968852682000
+         O            0.260759803973     0.937718176635     0.000000000000    15.994914619570
+         O           -0.830845446027     1.455321434235     0.000000000000    15.994914619570
+
+  Running in cs symmetry.
+
+  Rotational constants: A =      2.50227  B =      0.17271  C =      0.16156 [cm^-1]
+  Rotational constants: A =  75016.06877  B =   5177.64803  C =   4843.35701 [MHz]
+  Nuclear repulsion =   89.391740152411899
+
+  Charge       = 0
+  Multiplicity = 2
+  Electrons    = 33
+  Nalpha       = 17
+  Nbeta        = 16
+
+  ==> Algorithm <==
+
+  SCF Algorithm Type is DF.
+  DIIS enabled.
+  MOM disabled.
+  Fractional occupation disabled.
+  Guess Type is SAD.
+  Energy threshold   = 1.00e-06
+  Density threshold  = 1.00e-06
+  Integral threshold = 1.00e-12
+
+  ==> Primary Basis <==
+
+  -AO BASIS SET INFORMATION:
+    Name                   = DEF2-QZVPPD
+    Blend                  = DEF2-QZVPPD
+    Total number of shells = 65
+    Number of primitives   = 108
+    Number of AO           = 260
+    Number of SO           = 211
+    Maximum AM             = 4
+    Spherical Harmonics    = TRUE
+
+  -Contraction Scheme:
+    Atom   Type   All Primitives // Shells:
+   ------ ------ --------------------------
+       1    CL     21s 15p 5d 2f 1g // 10s 7p 5d 2f 1g 
+       2     O     16s 9p 4d 2f 1g // 8s 5p 4d 2f 1g 
+       3     O     16s 9p 4d 2f 1g // 8s 5p 4d 2f 1g 
+
+  ==> DFT Potential <==
+
+   => LibXC <=
+
+    Version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018) (10.1016/j.softx.2017.11.002)
+
+   => Composite Functional: PBE0 <= 
+
+    PBE0 Hyb-GGA Exchange-Correlation Functional
+
+    C. Adamo and V. Barone.,  J. Chem. Phys. 110, 6158 (1999) (10.1063/1.478522)
+    M. Ernzerhof and G. E. Scuseria.,  J. Chem. Phys. 110, 5029 (1999) (10.1063/1.478401)
+
+    Deriv               =              1
+    GGA                 =           TRUE
+    Meta                =          FALSE
+
+    Exchange Hybrid     =           TRUE
+    MP2 Hybrid          =          FALSE
+
+   => Exchange Functionals <=
+
+    0.7500   Perdew, Burke & Ernzerhof
+
+   => Exact (HF) Exchange <=
+
+    0.2500               HF 
+
+   => Correlation Functionals <=
+
+    1.0000   Perdew, Burke & Ernzerhof
+
+   => LibXC Density Thresholds  <==
+
+    XC_HYB_GGA_XC_PBEH:  1.00E-15 
+
+   => XC_HYB_GGA_XC_PBEH Functional <=
+
+    PBEH (PBE0)
+    C. Adamo and V. Barone.,  J. Chem. Phys. 110, 6158 (1999) (10.1063/1.478522)
+    M. Ernzerhof and G. E. Scuseria.,  J. Chem. Phys. 110, 5029 (1999) (10.1063/1.478401)
+    GGA   =           TRUE
+    Meta  =          FALSE
+    LRC   =          FALSE
+    Alpha =   1.000000E+00
+    Omega =   0.000000E+00
+
+   => Molecular Quadrature <=
+
+    Radial Scheme          =       TREUTLER
+    Pruning Scheme         =           NONE
+    Nuclear Scheme         =       TREUTLER
+
+    Blocking Scheme        =         OCTREE
+    BS radius alpha        =              1
+    Pruning alpha          =              1
+    Radial Points          =             99
+    Spherical Points       =            590
+    Total Points           =         172115
+    Total Blocks           =           1358
+    Max Points             =            256
+    Max Functions          =            203
+    Weights Tolerance      =       1.00E-15
+
+   => Loading Basis Set <=
+
+    Name: (DEF2-QZVPPD AUX)
+    Role: JKFIT
+    Keyword: DF_BASIS_SCF
+    atoms 1   entry CL         line   986 file /arc/home/kevinzjc/.conda/envs/snakeenv/share/psi4/basis/def2-universal-jkfit.gbs 
+    atoms 2-3 entry O          line   318 file /arc/home/kevinzjc/.conda/envs/snakeenv/share/psi4/basis/def2-universal-jkfit.gbs 
+
+  ==> Integral Setup <==
+
+  DFHelper Memory: AOs need 0.102 GiB; user supplied 9.708 GiB. 
+  Using in-core AOs.
+
+  ==> MemDFJK: Density-Fitted J/K Matrices <==
+
+    J tasked:                   Yes
+    K tasked:                   Yes
+    wK tasked:                   No
+    OpenMP threads:               4
+    Memory [MiB]:              9941
+    Algorithm:                 Core
+    Schwarz Cutoff:           1E-12
+    Mask sparsity (%):       2.7717
+    Fitting Condition:        1E-10
+
+   => Auxiliary Basis Set <=
+
+  -AO BASIS SET INFORMATION:
+    Name                   = (DEF2-QZVPPD AUX)
+    Blend                  = DEF2-UNIVERSAL-JKFIT
+    Total number of shells = 88
+    Number of primitives   = 109
+    Number of AO           = 341
+    Number of SO           = 282
+    Maximum AM             = 4
+    Spherical Harmonics    = TRUE
+
+  -Contraction Scheme:
+    Atom   Type   All Primitives // Shells:
+   ------ ------ --------------------------
+       1    CL     16s 12p 10d 4f 1g // 13s 11p 9d 4f 1g 
+       2     O     14s 10p 6d 2f 1g // 10s 8p 4d 2f 1g 
+       3     O     14s 10p 6d 2f 1g // 10s 8p 4d 2f 1g 
+
+  Cached 100.0% of DFT collocation blocks in 0.797 [GiB].
+
+  Minimum eigenvalue in the overlap matrix is 1.0565007671E-04.
+  Reciprocal condition number of the overlap matrix is 1.4992903894E-05.
+    Using symmetric orthogonalization.
+
+  ==> Pre-Iterations <==
+
+  SCF Guess: Superposition of Atomic Densities via on-the-fly atomic UHF (no occupation information).
+
+   -------------------------
+    Irrep   Nso     Nmo    
+   -------------------------
+     A'       138     138 
+     A"        73      73 
+   -------------------------
+    Total     211     211
+   -------------------------
+
+  ==> Iterations <==
+
+                           Total Energy        Delta E     RMS |[F,P]|
+
+   @DF-UKS iter SAD:  -609.81654432435141   -6.09817e+02   0.00000e+00 
+   @DF-UKS iter   1:  -610.20662810202612   -3.90084e-01   2.55644e-03 DIIS/ADIIS
+   @DF-UKS iter   2:  -610.08005936083146    1.26569e-01   4.26061e-03 DIIS/ADIIS
+   @DF-UKS iter   3:  -610.23453591368980   -1.54477e-01   1.30834e-03 DIIS/ADIIS
+   @DF-UKS iter   4:  -610.24757192405900   -1.30360e-02   8.45280e-04 DIIS/ADIIS
+   @DF-UKS iter   5:  -610.25547420302496   -7.90228e-03   2.21274e-04 DIIS/ADIIS
+   @DF-UKS iter   6:  -610.25624737225814   -7.73169e-04   6.33682e-05 DIIS
+   @DF-UKS iter   7:  -610.25656554766158   -3.18175e-04   5.22762e-05 DIIS
+   @DF-UKS iter   8:  -610.25687273959170   -3.07192e-04   5.22066e-05 DIIS
+   @DF-UKS iter   9:  -610.25684446672813    2.82729e-05   5.22227e-05 DIIS
+   @DF-UKS iter  10:  -610.25580071890067    1.04375e-03   5.59408e-05 DIIS
+   @DF-UKS iter  11:  -610.25273623417092    3.06448e-03   2.35171e-04 DIIS/ADIIS
+   @DF-UKS iter  12:  -610.25364389795743   -9.07664e-04   1.81252e-04 DIIS/ADIIS
+   @DF-UKS iter  13:  -610.25584948115500   -2.20558e-03   1.21159e-04 DIIS/ADIIS
+   @DF-UKS iter  14:  -610.25503507925350    8.14402e-04   5.06136e-05 DIIS
+   @DF-UKS iter  15:  -610.25378249713503    1.25258e-03   1.10880e-04 DIIS/ADIIS
+   @DF-UKS iter  16:  -610.25310411179589    6.78385e-04   1.37372e-04 DIIS/ADIIS
+   @DF-UKS iter  17:  -610.25379485630754   -6.90745e-04   1.05654e-04 DIIS/ADIIS
+   @DF-UKS iter  18:  -610.25427069911598   -4.75843e-04   8.13464e-05 DIIS
+   @DF-UKS iter  19:  -610.25423555538021    3.51437e-05   8.89983e-05 DIIS
+   @DF-UKS iter  20:  -610.25429146109980   -5.59057e-05   8.40696e-05 DIIS
+   @DF-UKS iter  21:  -610.25429466771413   -3.20661e-06   8.41574e-05 DIIS
+   @DF-UKS iter  22:  -610.25398073731526    3.13930e-04   7.90371e-05 DIIS
+   @DF-UKS iter  23:  -610.25380364403543    1.77093e-04   7.66222e-05 DIIS
+   @DF-UKS iter  24:  -610.25375285818893    5.07858e-05   6.18637e-05 DIIS
+   @DF-UKS iter  25:  -610.25384000390807   -8.71457e-05   5.68369e-05 DIIS
+   @DF-UKS iter  26:  -610.25325862554644    5.81378e-04   7.42180e-05 DIIS
+   @DF-UKS iter  27:  -610.25405104902404   -7.92423e-04   5.83531e-05 DIIS
+   @DF-UKS iter  28:  -610.25454172430079   -4.90675e-04   6.36090e-05 DIIS
+   @DF-UKS iter  29:  -610.25418698865963    3.54736e-04   5.93568e-05 DIIS
+   @DF-UKS iter  30:  -610.25420258849476   -1.55998e-05   6.08692e-05 DIIS
+   @DF-UKS iter  31:  -610.25431146293420   -1.08874e-04   6.41272e-05 DIIS
+   @DF-UKS iter  32:  -610.25423511360759    7.63493e-05   6.30847e-05 DIIS
+   @DF-UKS iter  33:  -610.25412695346756    1.08160e-04   6.25488e-05 DIIS
+   @DF-UKS iter  34:  -610.25413861266077   -1.16592e-05   6.24520e-05 DIIS
+   @DF-UKS iter  35:  -610.25408549619158    5.31165e-05   6.31637e-05 DIIS
+   @DF-UKS iter  36:  -610.25405598238683    2.95138e-05   6.44525e-05 DIIS
+   @DF-UKS iter  37:  -610.25101237944125    3.04360e-03   1.58033e-04 DIIS/ADIIS
+   @DF-UKS iter  38:  -610.25325101777003   -2.23864e-03   7.47243e-05 DIIS
+   @DF-UKS iter  39:  -610.25336253880982   -1.11521e-04   5.96786e-05 DIIS
+   @DF-UKS iter  40:  -610.25328557662260    7.69622e-05   6.26567e-05 DIIS
+   @DF-UKS iter  41:  -610.25352419872502   -2.38622e-04   5.02666e-05 DIIS
+   @DF-UKS iter  42:  -610.25346373651348    6.04622e-05   4.76691e-05 DIIS
+   @DF-UKS iter  43:  -610.25393473979011   -4.71003e-04   4.17831e-05 DIIS
+   @DF-UKS iter  44:  -610.25383004908792    1.04691e-04   4.08467e-05 DIIS
+   @DF-UKS iter  45:  -610.25379160793159    3.84412e-05   4.04160e-05 DIIS
+   @DF-UKS iter  46:  -610.25391067715043   -1.19069e-04   3.85087e-05 DIIS
+   @DF-UKS iter  47:  -610.25376561715302    1.45060e-04   4.02871e-05 DIIS
+   @DF-UKS iter  48:  -610.25746671403192   -3.70110e-03   3.23902e-04 DIIS/ADIIS
+   @DF-UKS iter  49:  -610.25732185161223    1.44862e-04   3.06704e-04 DIIS/ADIIS
+   @DF-UKS iter  50:  -610.25746772738535   -1.45876e-04   3.87884e-04 DIIS/ADIIS
+   @DF-UKS iter  51:  -610.25461812753565    2.84960e-03   6.81059e-05 DIIS
+   @DF-UKS iter  52:  -610.25550680554670   -8.88678e-04   1.27644e-04 DIIS/ADIIS
+   @DF-UKS iter  53:  -610.25510128012934    4.05525e-04   9.58417e-05 DIIS
+   @DF-UKS iter  54:  -610.25543266321938   -3.31383e-04   1.07480e-04 DIIS/ADIIS
+   @DF-UKS iter  55:  -610.25484624039962    5.86423e-04   8.12836e-05 DIIS
+   @DF-UKS iter  56:  -610.25475273616303    9.35042e-05   8.23227e-05 DIIS
+   @DF-UKS iter  57:  -610.25341513992066    1.33760e-03   6.43285e-05 DIIS
+   @DF-UKS iter  58:  -610.25464084001112   -1.22570e-03   8.45208e-05 DIIS
+   @DF-UKS iter  59:  -610.25459867412144    4.21659e-05   8.13534e-05 DIIS
+   @DF-UKS iter  60:  -610.25488044899805   -2.81775e-04   9.53705e-05 DIIS
+   @DF-UKS iter  61:  -610.25676817173462   -1.88772e-03   3.11681e-04 DIIS/ADIIS
+   @DF-UKS iter  62:  -610.25458387072649    2.18430e-03   9.98302e-05 DIIS
+   @DF-UKS iter  63:  -610.25469233079571   -1.08460e-04   1.11666e-04 DIIS/ADIIS
+   @DF-UKS iter  64:  -610.25466776607982    2.45647e-05   1.06377e-04 DIIS/ADIIS
+   @DF-UKS iter  65:  -610.25507125973570   -4.03494e-04   1.10144e-04 DIIS/ADIIS
+   @DF-UKS iter  66:  -610.25575802772835   -6.86768e-04   1.58793e-04 DIIS/ADIIS
+   @DF-UKS iter  67:  -610.25601865478541   -2.60627e-04   2.00121e-04 DIIS/ADIIS
+   @DF-UKS iter  68:  -610.25214507053306    3.87358e-03   1.20548e-04 DIIS/ADIIS
+   @DF-UKS iter  69:  -610.25574355315496   -3.59848e-03   1.63800e-04 DIIS/ADIIS
+   @DF-UKS iter  70:  -610.25567028508067    7.32681e-05   1.58022e-04 DIIS/ADIIS
+   @DF-UKS iter  71:  -610.25563438731649    3.58978e-05   1.57571e-04 DIIS/ADIIS
+   @DF-UKS iter  72:  -610.25532407046592    3.10317e-04   1.15647e-04 DIIS/ADIIS
+   @DF-UKS iter  73:  -610.25559694870799   -2.72878e-04   1.33358e-04 DIIS/ADIIS
+   @DF-UKS iter  74:  -610.25562716064348   -3.02119e-05   1.32478e-04 DIIS/ADIIS
+   @DF-UKS iter  75:  -610.25609175155103   -4.64591e-04   1.68775e-04 DIIS/ADIIS
+   @DF-UKS iter  76:  -610.25625996217968   -1.68211e-04   2.27769e-04 DIIS/ADIIS
+   @DF-UKS iter  77:  -610.25535449101517    9.05471e-04   1.34749e-04 DIIS/ADIIS
+   @DF-UKS iter  78:  -610.25541188043246   -5.73894e-05   1.42006e-04 DIIS/ADIIS
+   @DF-UKS iter  79:  -610.25360562746528    1.80625e-03   6.47587e-05 DIIS
+   @DF-UKS iter  80:  -610.25030088954543    3.30474e-03   1.62746e-04 DIIS/ADIIS
+   @DF-UKS iter  81:  -610.25373588749403   -3.43500e-03   5.93598e-05 DIIS
+   @DF-UKS iter  82:  -610.25227056593326    1.46532e-03   9.95748e-05 DIIS
+   @DF-UKS iter  83:  -610.25249187079919   -2.21305e-04   8.89919e-05 DIIS
+   @DF-UKS iter  84:  -610.25263853020226   -1.46659e-04   8.84246e-05 DIIS
+   @DF-UKS iter  85:  -610.25263126140442    7.26880e-06   8.47701e-05 DIIS
+   @DF-UKS iter  86:  -610.25238374134165    2.47520e-04   8.95614e-05 DIIS
+   @DF-UKS iter  87:  -610.25381738553176   -1.43364e-03   5.65339e-05 DIIS
+   @DF-UKS iter  88:  -610.25432032353694   -5.02938e-04   6.40205e-05 DIIS
+   @DF-UKS iter  89:  -610.25371924684293    6.01077e-04   5.26071e-05 DIIS
+   @DF-UKS iter  90:  -610.25412613182004   -4.06885e-04   5.32882e-05 DIIS
+   @DF-UKS iter  91:  -610.25391860440322    2.07527e-04   5.06573e-05 DIIS
+   @DF-UKS iter  92:  -610.25382519996185    9.34044e-05   5.07093e-05 DIIS
+   @DF-UKS iter  93:  -610.25366014192184    1.65058e-04   5.26116e-05 DIIS
+   @DF-UKS iter  94:  -610.25383863303978   -1.78491e-04   5.09115e-05 DIIS
+   @DF-UKS iter  95:  -610.25376568362628    7.29494e-05   5.18874e-05 DIIS
+   @DF-UKS iter  96:  -610.25359685554190    1.68828e-04   5.48397e-05 DIIS
+   @DF-UKS iter  97:  -610.25517300050103   -1.57614e-03   9.16099e-05 DIIS
+   @DF-UKS iter  98:  -610.25505038578353    1.22615e-04   1.10452e-04 DIIS/ADIIS
+   @DF-UKS iter  99:  -610.25445783031716    5.92555e-04   8.11879e-05 DIIS
+   @DF-UKS iter 100:  -610.25452879124975   -7.09609e-05   8.52542e-05 DIIS
+
+PsiException: Could not converge SCF iterations in 100 iterations.
+
+  Failed to converge.
+
+Traceback (most recent call last):
+  File "/home/kevinzjc/.conda/envs/snakeenv/bin/psi4", line 387, in <module>
+    exec(content)
+  File "<string>", line 39, in <module>
+  File "/arc/home/kevinzjc/.conda/envs/snakeenv/lib/python3.12/site-packages/psi4/driver/driver.py", line 525, in energy
+    wfn = procedures['energy'][lowername](lowername, molecule=molecule, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/arc/home/kevinzjc/.conda/envs/snakeenv/lib/python3.12/site-packages/psi4/driver/procrouting/proc.py", line 2588, in run_scf
+    scf_wfn = scf_helper(name, post_scf=False, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/arc/home/kevinzjc/.conda/envs/snakeenv/lib/python3.12/site-packages/psi4/driver/procrouting/proc.py", line 1887, in scf_helper
+    e_scf = scf_wfn.compute_energy()
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/arc/home/kevinzjc/.conda/envs/snakeenv/lib/python3.12/site-packages/psi4/driver/procrouting/scf_proc/scf_iterator.py", line 93, in scf_compute_energy
+    raise e
+  File "/arc/home/kevinzjc/.conda/envs/snakeenv/lib/python3.12/site-packages/psi4/driver/procrouting/scf_proc/scf_iterator.py", line 86, in scf_compute_energy
+    self.iterations()
+  File "/arc/home/kevinzjc/.conda/envs/snakeenv/lib/python3.12/site-packages/psi4/driver/procrouting/scf_proc/scf_iterator.py", line 548, in scf_iterate
+    raise SCFConvergenceError("""SCF iterations""", self.iteration_, self, Ediff, Dnorm)
+
+psi4.driver.p4util.exceptions.SCFConvergenceError: Could not converge SCF iterations in 100 iterations.
+
+
+Printing out the relevant lines from the Psithon --> Python processed input file:
+    core.set_global_option("REFERENCE", "UHF")
+    core.set_global_option("SCF_TYPE", "DF")
+    core.set_global_option("DFT_SPHERICAL_POINTS", 590)
+    core.set_global_option("DFT_RADIAL_POINTS", 99)
+    core.set_global_option("PRINT", 2)
+--> energy, wfn = energy('PBE0',return_wfn=True)
+    wfn_data = wfn.to_file()
+    with open('../../ACCDB/Wavefunctions/PBE0/def2-QZVPPD_99x590/W4-17_cloo/mol.wf', 'wb') as f:
+        np.save(f, wfn_data, allow_pickle=True)
+
+!-------------------------------------------------------!
+!                                                       !
+!  Could not converge SCF iterations in 100 iterations. !
+!                                                       !
+!-------------------------------------------------------!
+
+    Psi4 stopped on: Friday, 11 April 2025 08:09PM
+    Psi4 wall time for execution: 0:01:19.88
+
+*** Psi4 encountered an error. Buy a developer more coffee!
+*** Resources and help at github.com/psi4/psi4.
